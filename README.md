@@ -40,3 +40,22 @@ có vruntime nhỏ nhất, hàng đợi RUNNABLE dùng cây đỏ-đen).
 Không push thẳng lên main. Mỗi việc làm trên một nhánh riêng (ví dụ feature/vruntime, docs/figma), xong thì tạo Pull Request cho một bạn khác xem trước khi gộp. Làm vậy tránh một người làm hỏng bản xv6 đang chạy được của cả nhóm.
 Chỉ gộp khi build được và usertests không tệ hơn baseline. Quy tắc này quan trọng nhất với đề này, vì scheduler hỏng thì cả hệ thống không khởi động.
 Mọi người dùng cùng một bản xv6 gốc (ghi ở mục “Phiên bản xv6 gốc”), không tự cập nhật bản khác
+## Nguồn code gốc
+
+Repo dùng bản xv6-riscv của MIT (https://github.com/mit-pdos/xv6-riscv) làm nền.
+Tag `base-xv6` (commit `c787f03`) đánh dấu điểm xuất phát của nhóm.
+Các commit trước tag này thuộc lịch sử gốc của xv6, không phải đóng góp của nhóm.
+
+Để xem riêng phần việc của nhóm:
+
+    git log --oneline base-xv6..main
+    git shortlog -sn base-xv6..main
+
+## Build và chạy
+
+    make qemu
+
+## Cấu trúc thư mục của nhóm
+
+- `kernel/rbtree.h`, `kernel/rbtree.c`: cây đỏ-đen dùng cho hàng đợi CFS
+- `docs/`: ghi chú và tài liệu thiết kế
