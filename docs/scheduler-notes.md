@@ -2,14 +2,14 @@
   Người ghi: Khôi
   Ngày 23/10/20206
 
-## 2. Trạng thái process (kernel/proc.h)
+## 1. Trạng thái process (kernel/proc.h)
 - procstate: UNUSED, USED, SLEEPING, RUNNABLE, RUNNING, ZOMBIE.
 - Scheduler chỉ chọn process ở trạng thái RUNNABLE.
 - Các trường trong struct proc liên quan đến lập lịch: lock, state,
   chan, context. Quy tắc: giữ p->lock khi đọc/ghi state.
 - struct proc chưa có trường nào về độ ưu tiên hay thời gian chạy
   -> CFS sẽ phải thêm trường mới (dự kiến: vruntime, trọng số).
-## 3. Các hàm chính (kernel/proc.c)
+## 2. Các hàm chính (kernel/proc.c)
 
 Lưu ý phiên bản: bản này dùng kfork/kexit/kwait/kkill và cặp
 sleep_prepare(chan) + sleep() (không có tham số lock như bản cũ).
@@ -51,7 +51,7 @@ sleep_prepare(chan) + sleep() (không có tham số lock như bản cũ).
 userinit, kfork, yield, wakeup, kkill.
 Điểm "ra khỏi hàng đợi": scheduler() đặt RUNNING.
 (Liên quan trực tiếp đến thiết kế CFS với cây đỏ-đen.)
-## 4. Cơ chế ngắt timer (kernel/trap.c)
+## 3. Cơ chế ngắt timer (kernel/trap.c)
 
 Luồng khi timer hết hạn:
 timer interrupt -> usertrap() (từ user) hoặc kerneltrap() (từ kernel)
@@ -70,7 +70,7 @@ timer interrupt -> usertrap() (từ user) hoặc kerneltrap() (từ kernel)
   scheduler() có thể bị ngắt khi chưa có process nào chạy).
 - kerneltrap() khôi phục sepc/sstatus sau yield().
 - ticks chỉ tăng ở CPU 0; mọi CPU đều nhận timer riêng.
-## 5. Chuyển ngữ cảnh (kernel/proc.h)
+## 4. Chuyển ngữ cảnh (kernel/proc.h)
 - struct context: ra, sp, s0-s11 (chỉ callee-saved, vì swtch() được
   gọi như một hàm).
 - struct cpu: proc (process đang chạy), context (context của
@@ -79,7 +79,7 @@ timer interrupt -> usertrap() (từ user) hoặc kerneltrap() (từ kernel)
   qua scheduler (process A -> scheduler -> process B).
 - trapframe (user) khác context (kernel): trapframe lưu thanh ghi
   user khi vào trap, context lưu thanh ghi kernel khi swtch().
-## 6. Kết luận cho CFS (dự kiến, nhóm chưa chốt)
+## 5. Kết luận cho CFS (dự kiến, nhóm chưa chốt)
 
 Chỗ cần thay đổi nếu thay round-robin bằng CFS:
 - kernel/proc.h: thêm trường vào struct proc (vruntime, trọng số).
