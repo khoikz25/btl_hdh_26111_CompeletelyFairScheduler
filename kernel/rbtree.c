@@ -76,12 +76,12 @@ rotate_left(struct rb_root *t, struct rb_node *x)
   struct rb_node *y = x->right;
 
   x->right = y->left;
-  if(y->left != NULL)
+  if (y->left != NULL)
     y->left->parent = x;
   y->parent = x->parent;
-  if(x->parent == NULL)
+  if (x->parent == NULL)
     t->root = y;
-  else if(x == x->parent->left)
+  else if (x == x->parent->left)
     x->parent->left = y;
   else
     x->parent->right = y;
@@ -96,12 +96,12 @@ rotate_right(struct rb_root *t, struct rb_node *x)
   struct rb_node *y = x->left;
 
   x->left = y->right;
-  if(y->right != NULL)
+  if (y->right != NULL)
     y->right->parent = x;
   y->parent = x->parent;
-  if(x->parent == NULL)
+  if (x->parent == NULL)
     t->root = y;
-  else if(x == x->parent->right)
+  else if (x == x->parent->right)
     x->parent->right = y;
   else
     x->parent->left = y;
@@ -113,37 +113,37 @@ rotate_right(struct rb_root *t, struct rb_node *x)
 static void
 insert_fixup(struct rb_root *t, struct rb_node *n)
 {
-  while(n != t->root && is_red(n->parent)){
+  while (n != t->root && is_red(n->parent)) {
     struct rb_node *p = n->parent;
-    struct rb_node *g = p->parent;   // cha đỏ thì không thể là gốc => g tồn tại
-    struct rb_node *u;               // bác (anh em của cha)
+    struct rb_node *g = p->parent; // cha đỏ thì không thể là gốc => g tồn tại
+    struct rb_node *u;             // bác (anh em của cha)
 
-    if(p == g->left){
+    if (p == g->left) {
       u = g->right;
-      if(is_red(u)){                 // TH1: bác đỏ => đổi màu, đi lên
+      if (is_red(u)) { // TH1: bác đỏ => đổi màu, đi lên
         p->color = RB_BLACK;
         u->color = RB_BLACK;
         g->color = RB_RED;
         n = g;
       } else {
-        if(n == p->right){           // TH2: gấp khúc => xoay về thẳng hàng
+        if (n == p->right) { // TH2: gấp khúc => xoay về thẳng hàng
           n = p;
           rotate_left(t, n);
           p = n->parent;
         }
-        p->color = RB_BLACK;         // TH3: thẳng hàng
+        p->color = RB_BLACK; // TH3: thẳng hàng
         g->color = RB_RED;
         rotate_right(t, g);
       }
-    } else {                         // đối xứng
+    } else { // đối xứng
       u = g->left;
-      if(is_red(u)){
+      if (is_red(u)) {
         p->color = RB_BLACK;
         u->color = RB_BLACK;
         g->color = RB_RED;
         n = g;
       } else {
-        if(n == p->left){
+        if (n == p->left) {
           n = p;
           rotate_right(t, n);
           p = n->parent;
@@ -164,14 +164,14 @@ rb_insert(struct rb_root *tree, struct rb_node *node)
 {
   struct rb_node *p = NULL;
   struct rb_node *cur = tree->root;
-  int is_leftmost = 1;               // đi toàn bên trái => nút mới là min
+  int is_leftmost = 1; // đi toàn bên trái => nút mới là min
 
-  if(node->on_rq)
+  if (node->on_rq)
     return;
 
-  while(cur != NULL){
+  while (cur != NULL) {
     p = cur;
-    if(rb_less(node, cur)){
+    if (rb_less(node, cur)) {
       cur = cur->left;
     } else {
       cur = cur->right;
@@ -184,14 +184,14 @@ rb_insert(struct rb_root *tree, struct rb_node *node)
   node->right = NULL;
   node->color = RB_RED;
 
-  if(p == NULL)
+  if (p == NULL)
     tree->root = node;
-  else if(rb_less(node, p))
+  else if (rb_less(node, p))
     p->left = node;
   else
     p->right = node;
 
-  if(is_leftmost)
+  if (is_leftmost)
     tree->leftmost = node;
   tree->nr_running++;
   node->on_rq = 1;
@@ -204,50 +204,50 @@ rb_insert(struct rb_root *tree, struct rb_node *node)
 static void
 delete_fixup(struct rb_root *t, struct rb_node *x, struct rb_node *parent)
 {
-  struct rb_node *w;   // anh em của x
+  struct rb_node *w; // anh em của x
 
-  while(x != t->root && is_black(x)){
-    if(x == parent->left){
+  while (x != t->root && is_black(x)) {
+    if (x == parent->left) {
       w = parent->right;
-      if(is_red(w)){                           // TH1: anh em đỏ
+      if (is_red(w)) { // TH1: anh em đỏ
         w->color = RB_BLACK;
         parent->color = RB_RED;
         rotate_left(t, parent);
         w = parent->right;
       }
-      if(is_black(w->left) && is_black(w->right)){   // TH2
+      if (is_black(w->left) && is_black(w->right)) { // TH2
         w->color = RB_RED;
         x = parent;
         parent = x->parent;
       } else {
-        if(is_black(w->right)){                // TH3
+        if (is_black(w->right)) { // TH3
           w->left->color = RB_BLACK;
           w->color = RB_RED;
           rotate_right(t, w);
           w = parent->right;
         }
-        w->color = parent->color;              // TH4
+        w->color = parent->color; // TH4
         parent->color = RB_BLACK;
-        if(w->right != NULL)
+        if (w->right != NULL)
           w->right->color = RB_BLACK;
         rotate_left(t, parent);
         x = t->root;
         break;
       }
-    } else {                                   // đối xứng
+    } else { // đối xứng
       w = parent->left;
-      if(is_red(w)){
+      if (is_red(w)) {
         w->color = RB_BLACK;
         parent->color = RB_RED;
         rotate_right(t, parent);
         w = parent->left;
       }
-      if(is_black(w->left) && is_black(w->right)){
+      if (is_black(w->left) && is_black(w->right)) {
         w->color = RB_RED;
         x = parent;
         parent = x->parent;
       } else {
-        if(is_black(w->left)){
+        if (is_black(w->left)) {
           w->right->color = RB_BLACK;
           w->color = RB_RED;
           rotate_left(t, w);
@@ -255,7 +255,7 @@ delete_fixup(struct rb_root *t, struct rb_node *x, struct rb_node *parent)
         }
         w->color = parent->color;
         parent->color = RB_BLACK;
-        if(w->left != NULL)
+        if (w->left != NULL)
           w->left->color = RB_BLACK;
         rotate_right(t, parent);
         x = t->root;
@@ -263,7 +263,7 @@ delete_fixup(struct rb_root *t, struct rb_node *x, struct rb_node *parent)
       }
     }
   }
-  if(x != NULL)
+  if (x != NULL)
     x->color = RB_BLACK;
 }
 
@@ -273,13 +273,13 @@ replace_child(struct rb_root *t, struct rb_node *old, struct rb_node *nw)
 {
   struct rb_node *p = old->parent;
 
-  if(p == NULL)
+  if (p == NULL)
     t->root = nw;
-  else if(p->left == old)
+  else if (p->left == old)
     p->left = nw;
   else
     p->right = nw;
-  if(nw != NULL)
+  if (nw != NULL)
     nw->parent = p;
 }
 
@@ -291,15 +291,15 @@ rb_delete(struct rb_root *tree, struct rb_node *node)
   struct rb_node *child, *parent, *y;
   enum rb_color color;
 
-  if(!z->on_rq)
+  if (!z->on_rq)
     return;
 
   // Cập nhật leftmost trước. z là min thì không có con trái,
   // nên nút min kế tiếp là min của cây con phải, hoặc cha của z.
-  if(tree->leftmost == z){
-    if(z->right != NULL){
+  if (tree->leftmost == z) {
+    if (z->right != NULL) {
       y = z->right;
-      while(y->left != NULL)
+      while (y->left != NULL)
         y = y->left;
       tree->leftmost = y;
     } else {
@@ -307,7 +307,7 @@ rb_delete(struct rb_root *tree, struct rb_node *node)
     }
   }
 
-  if(z->left == NULL || z->right == NULL){
+  if (z->left == NULL || z->right == NULL) {
     // z có 0 hoặc 1 con: nối con của z vào chỗ z
     child = (z->left != NULL) ? z->left : z->right;
     parent = z->parent;
@@ -316,25 +316,25 @@ rb_delete(struct rb_root *tree, struct rb_node *node)
   } else {
     // z có 2 con: lấy nút kế tiếp y (nhỏ nhất bên phải) đặt vào chỗ z
     y = z->right;
-    while(y->left != NULL)
+    while (y->left != NULL)
       y = y->left;
     color = y->color;
     child = y->right;
-    if(y->parent == z){
+    if (y->parent == z) {
       parent = y;
     } else {
       parent = y->parent;
-      replace_child(tree, y, child);       // gỡ y khỏi vị trí cũ
+      replace_child(tree, y, child); // gỡ y khỏi vị trí cũ
       y->right = z->right;
       y->right->parent = y;
     }
-    replace_child(tree, z, y);             // y thế chỗ z
+    replace_child(tree, z, y); // y thế chỗ z
     y->left = z->left;
     y->left->parent = y;
     y->color = z->color;
   }
 
-  if(color == RB_BLACK)
+  if (color == RB_BLACK)
     delete_fixup(tree, child, parent);
 
   z->parent = NULL;
@@ -351,7 +351,7 @@ rb_pop_min(struct rb_root *tree)
   struct rb_node *n = rb_min(tree);
   struct proc *p;
 
-  if(n == NULL)
+  if (n == NULL)
     return NULL;
   p = n->proc;
   rb_delete(tree, n);
@@ -367,27 +367,27 @@ check_node(struct rb_node *n, struct rb_node *lo, struct rb_node *hi, int *cnt)
 {
   int hl, hr;
 
-  if(n == NULL)
-    return 1;                              // NIL tính là 1 nút đen
+  if (n == NULL)
+    return 1; // NIL tính là 1 nút đen
   (*cnt)++;
-  if(!n->on_rq)
-    return -1;                             // nút trên cây phải có on_rq = 1
-  if(lo != NULL && rb_less(n, lo))
-    return -1;                             // sai thứ tự BST
-  if(hi != NULL && rb_less(hi, n))
+  if (!n->on_rq)
+    return -1; // nút trên cây phải có on_rq = 1
+  if (lo != NULL && rb_less(n, lo))
+    return -1; // sai thứ tự BST
+  if (hi != NULL && rb_less(hi, n))
     return -1;
-  if(n->color != RB_RED && n->color != RB_BLACK)
+  if (n->color != RB_RED && n->color != RB_BLACK)
     return -1;
-  if(n->color == RB_RED && (is_red(n->left) || is_red(n->right)))
-    return -1;                             // luật 4: đỏ-đỏ
-  if(n->left != NULL && n->left->parent != n)
-    return -1;                             // con trỏ cha sai
-  if(n->right != NULL && n->right->parent != n)
+  if (n->color == RB_RED && (is_red(n->left) || is_red(n->right)))
+    return -1; // luật 4: đỏ-đỏ
+  if (n->left != NULL && n->left->parent != n)
+    return -1; // con trỏ cha sai
+  if (n->right != NULL && n->right->parent != n)
     return -1;
   hl = check_node(n->left, lo, n, cnt);
   hr = check_node(n->right, n, hi, cnt);
-  if(hl < 0 || hr < 0 || hl != hr)
-    return -1;                             // luật 5: khác số nút đen
+  if (hl < 0 || hr < 0 || hl != hr)
+    return -1; // luật 5: khác số nút đen
   return hl + (n->color == RB_BLACK ? 1 : 0);
 }
 
@@ -398,16 +398,16 @@ rb_verify_properties(struct rb_root *tree)
   int cnt = 0;
   struct rb_node *m;
 
-  if(tree->root == NULL)
+  if (tree->root == NULL)
     return tree->nr_running == 0 && tree->leftmost == NULL;
-  if(tree->root->color != RB_BLACK || tree->root->parent != NULL)
-    return 0;                              // luật 2
-  if(check_node(tree->root, NULL, NULL, &cnt) < 0)
+  if (tree->root->color != RB_BLACK || tree->root->parent != NULL)
+    return 0; // luật 2
+  if (check_node(tree->root, NULL, NULL, &cnt) < 0)
     return 0;
-  if(cnt != tree->nr_running)
+  if (cnt != tree->nr_running)
     return 0;
   m = tree->root;
-  while(m->left != NULL)
+  while (m->left != NULL)
     m = m->left;
-  return m == tree->leftmost;              // leftmost phải đúng
+  return m == tree->leftmost; // leftmost phải đúng
 }
