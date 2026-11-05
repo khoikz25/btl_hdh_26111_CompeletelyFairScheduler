@@ -24,6 +24,7 @@ spin(int end)
       x += i;
     count++;
   }
+  (void)x;
   return count;
 }
 
