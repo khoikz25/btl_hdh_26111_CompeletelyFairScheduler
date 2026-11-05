@@ -9,5 +9,4 @@ struct spinlock {
   struct cpu *cpu; // The cpu holding the lock.
 };
 
-#endif //SPINLOCK_H
-
+#endif // SPINLOCK_H
