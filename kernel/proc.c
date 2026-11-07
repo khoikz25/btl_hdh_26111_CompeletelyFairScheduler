@@ -146,6 +146,16 @@ found:
   p->context.ra = (uint64)forkret;
   p->context.sp = p->kstack + PGSIZE;
 
+  // Khởi tạo các trường CFS cho tiến trình mới
+  p->vruntime = 0;
+  p->nice = 0;
+  p->weight = 1024;
+  p->start_tick = 0;
+  p->runtime_ticks = 0;
+  p->time_slice = 0;
+  rb_node_init(&p->cfs_node, p);
+  p->cfs_node.pid = p->pid;
+  p->cfs_node.vruntime = 0;
   return p;
 }
 
@@ -168,6 +178,14 @@ freeproc(struct proc *p)
   p->killed = 0;
   p->xstate = 0;
   p->state = UNUSED;
+
+  p->vruntime = 0;
+  p->nice = 0;
+  p->weight = 0;
+  p->start_tick = 0;
+  p->runtime_ticks = 0;
+  p->time_slice = 0;
+  rb_node_init(&p->cfs_node, 0);
 }
 
 // Create a user page table for a given process, with no user memory,

@@ -3,7 +3,8 @@
 // Quy ước quan trọng:
 //  - Các hàm ở đây KHÔNG tự khóa tree->lock. Người gọi (scheduler, wakeup...)
 //    tự acquire/release theo thứ tự lock đã chốt ở T1.4.
-//  - Không dùng malloc/printf/libc nên build được cả trong kernel lẫn gcc thường.
+//  - Không dùng malloc/printf/libc nên build được cả trong kernel lẫn gcc
+//  thường.
 //  - Mỗi nút phải có (vruntime, pid) khác nhau. Muốn đổi vruntime của một nút
 //    thì rb_delete, đổi giá trị, rồi rb_insert lại.
 
