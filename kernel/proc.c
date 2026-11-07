@@ -146,7 +146,7 @@ found:
   p->context.ra = (uint64)forkret;
   p->context.sp = p->kstack + PGSIZE;
 
-// Khởi tạo các trường CFS cho tiến trình mới
+  // Khởi tạo các trường CFS cho tiến trình mới
   p->vruntime = 0;
   p->nice = 0;
   p->weight = 1024;
