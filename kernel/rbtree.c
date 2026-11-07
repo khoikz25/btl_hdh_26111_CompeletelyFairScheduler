@@ -202,8 +202,8 @@ rb_insert(struct rb_root *tree, struct rb_node *node)
 
 // 2.5: sửa cây sau khi xóa một nút đen.
 // x là nút thế chỗ (có thể NULL), parent là cha của x.
-static void delete_fixup(struct rb_root *t, struct rb_node *x,
-                         struct rb_node *parent)
+static void
+delete_fixup(struct rb_root *t, struct rb_node *x, struct rb_node *parent)
 {
   struct rb_node *w; // anh em của x
 
@@ -269,8 +269,8 @@ static void delete_fixup(struct rb_root *t, struct rb_node *x,
 }
 
 // Cho cha của old trỏ sang nw (nw có thể NULL).
-static void replace_child(struct rb_root *t, struct rb_node *old,
-                          struct rb_node *nw)
+static void
+replace_child(struct rb_root *t, struct rb_node *old, struct rb_node *nw)
 {
   struct rb_node *p = old->parent;
 
@@ -363,8 +363,8 @@ rb_pop_min(struct rb_root *tree)
 
 // Trả về chiều cao đen của cây con n, hoặc -1 nếu vi phạm.
 // lo/hi: cận dưới/trên theo thứ tự BST.
-static int check_node(struct rb_node *n, struct rb_node *lo, struct rb_node *hi,
-                      int *cnt)
+static int
+check_node(struct rb_node *n, struct rb_node *lo, struct rb_node *hi, int *cnt)
 {
   int hl, hr;
 
