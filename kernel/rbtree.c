@@ -19,20 +19,27 @@
 void initlock(struct spinlock *, char *);
 
 // a có đứng trước b không?
-static int rb_less(struct rb_node *a, struct rb_node *b)
+static int
+rb_less(struct rb_node *a, struct rb_node *b)
 {
   return rb_compare(a, b) < 0;
 }
 
 // NULL (lá NIL) được coi là đen.
-static int is_red(struct rb_node *n) { return n != NULL && n->color == RB_RED; }
+static int
+is_red(struct rb_node *n)
+{
+  return n != NULL && n->color == RB_RED;
+}
 
-static int is_black(struct rb_node *n)
+static int
+is_black(struct rb_node *n)
 {
   return n == NULL || n->color == RB_BLACK;
 }
 
-void rb_init(struct rb_root *tree)
+void
+rb_init(struct rb_root *tree)
 {
   tree->root = NULL;
   tree->leftmost = NULL;
@@ -43,7 +50,8 @@ void rb_init(struct rb_root *tree)
 
 // Sau hàm này người gọi phải tự đặt node->vruntime và node->pid
 // (lấy từ proc) rồi mới rb_insert.
-void rb_node_init(struct rb_node *node, struct proc *p)
+void
+rb_node_init(struct rb_node *node, struct proc *p)
 {
   node->parent = NULL;
   node->left = NULL;
@@ -56,10 +64,15 @@ void rb_node_init(struct rb_node *node, struct proc *p)
 }
 
 // 2.1: nút nhỏ nhất, O(1). Cây rỗng trả NULL.
-struct rb_node *rb_min(struct rb_root *tree) { return tree->leftmost; }
+struct rb_node *
+rb_min(struct rb_root *tree)
+{
+  return tree->leftmost;
+}
 
 // Xoay trái tại x (y = con phải của x đi lên thay x).
-static void rotate_left(struct rb_root *t, struct rb_node *x)
+static void
+rotate_left(struct rb_root *t, struct rb_node *x)
 {
   struct rb_node *y = x->right;
 
@@ -78,7 +91,8 @@ static void rotate_left(struct rb_root *t, struct rb_node *x)
 }
 
 // Xoay phải tại x (y = con trái của x đi lên thay x).
-static void rotate_right(struct rb_root *t, struct rb_node *x)
+static void
+rotate_right(struct rb_root *t, struct rb_node *x)
 {
   struct rb_node *y = x->left;
 
@@ -97,7 +111,8 @@ static void rotate_right(struct rb_root *t, struct rb_node *x)
 }
 
 // 2.3: sửa cây sau khi chèn nút n (n đang đỏ).
-static void insert_fixup(struct rb_root *t, struct rb_node *n)
+static void
+insert_fixup(struct rb_root *t, struct rb_node *n)
 {
   while (n != t->root && is_red(n->parent)) {
     struct rb_node *p = n->parent;
@@ -145,7 +160,8 @@ static void insert_fixup(struct rb_root *t, struct rb_node *n)
 
 // 2.2: chèn node (đã rb_node_init, đã đặt vruntime và pid).
 // Nút đã nằm trên cây (on_rq = 1) thì bỏ qua, tránh làm hỏng cây.
-void rb_insert(struct rb_root *tree, struct rb_node *node)
+void
+rb_insert(struct rb_root *tree, struct rb_node *node)
 {
   struct rb_node *p = NULL;
   struct rb_node *cur = tree->root;
@@ -269,7 +285,8 @@ static void replace_child(struct rb_root *t, struct rb_node *old,
 }
 
 // 2.4: gỡ node khỏi cây. Nút không nằm trên cây (on_rq = 0) thì bỏ qua.
-void rb_delete(struct rb_root *tree, struct rb_node *node)
+void
+rb_delete(struct rb_root *tree, struct rb_node *node)
 {
   struct rb_node *z = node;
   struct rb_node *child, *parent, *y;
@@ -329,7 +346,8 @@ void rb_delete(struct rb_root *tree, struct rb_node *node)
 }
 
 // Lấy ra và gỡ luôn tiến trình có vruntime nhỏ nhất. Cây rỗng trả NULL.
-struct proc *rb_pop_min(struct rb_root *tree)
+struct proc *
+rb_pop_min(struct rb_root *tree)
 {
   struct rb_node *n = rb_min(tree);
   struct proc *p;
@@ -375,7 +393,8 @@ static int check_node(struct rb_node *n, struct rb_node *lo, struct rb_node *hi,
 }
 
 // Trả về 1 nếu cây hợp lệ, 0 nếu vi phạm.
-int rb_verify_properties(struct rb_root *tree)
+int
+rb_verify_properties(struct rb_root *tree)
 {
   int cnt = 0;
   struct rb_node *m;
