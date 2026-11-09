@@ -78,7 +78,8 @@ cfs_enqueue(struct proc *p)
 }
 
 // Gỡ p khỏi cây CFS (nếu đang ở trong). Gọi khi đang giữ p->lock.
-static void
+// Gỡ p khỏi cây CFS (nếu đang ở trong). Gọi khi đang giữ p->lock.
+static void __attribute__((unused))
 cfs_dequeue(struct proc *p)
 {
   if (!holding(&p->lock))
@@ -480,6 +481,7 @@ void
 scheduler(void)
 {
   struct proc *p;
+  struct rb_node *n;
   struct cpu *c = mycpu();
 
   c->proc = 0;
@@ -492,42 +494,46 @@ scheduler(void)
     intr_on();
     intr_off();
 
-    int found = 0;
-    for (p = proc; p < &proc[NPROC]; p++) {
-      acquire(&p->lock);
-      if (p->state == RUNNABLE) {
-        cfs_dequeue(p);
-        // Switch to chosen process.  It is the process's job
-        // to release its lock and then reacquire it
-        // before jumping back to us.
-        p->state = RUNNING;
-        c->proc = p;
-        swtch(&c->context, &p->context);
+    // Pha 1: Xem ứng viên có vruntime nhỏ nhất trên cây (O(1))
+    acquire(&cfs_rq.lock);
+    n = rb_min(&cfs_rq);
+    p = (n != 0) ? n->proc : 0;
+    release(&cfs_rq.lock);
 
-        // Don't re-enable interrupts on release.
-        mycpu()->intena = 0;
-
-        // Process is done running for now.
-        // It should have changed its p->state before coming back.
-        c->proc = 0;
-        found = 1;
-      }
-      release(&p->lock);
-    }
-    if (found == 0) {
+    if (p == 0) {
       // nothing to run; stop running on this core until an interrupt.
       asm volatile("wfi");
+      continue;
     }
+
+    // Pha 2: Khóa đúng thứ tự p->lock trước, cfs_rq.lock sau
+    acquire(&p->lock);
+    acquire(&cfs_rq.lock);
+
+    // Kiểm tra lại vì giữa Pha 1 và Pha 2 một CPU khác có thể đã lấy mất p
+    if (p->state == RUNNABLE && p->cfs_node.on_rq) {
+      rb_delete(&cfs_rq, &p->cfs_node);
+      release(&cfs_rq.lock);
+
+      // Switch to chosen process.  It is the process's job
+      // to release its lock and then reacquire it
+      // before jumping back to us.
+      p->state = RUNNING;
+      c->proc = p;
+      swtch(&c->context, &p->context);
+
+      // Don't re-enable interrupts on release.
+      mycpu()->intena = 0;
+
+      // Process is done running for now.
+      // It should have changed its p->state before coming back.
+      c->proc = 0;
+    } else {
+      release(&cfs_rq.lock);
+    }
+    release(&p->lock);
   }
 }
-
-// Switch to scheduler.  Must hold only p->lock
-// and have changed proc->state. Saves and restores
-// intena because intena is a property of this
-// kernel thread, not this CPU. It should
-// be proc->intena and proc->noff, but that would
-// break in the few places where a lock is held but
-// there's no process.
 void
 sched(void)
 {
