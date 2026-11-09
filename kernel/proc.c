@@ -57,6 +57,7 @@ procinit(void)
     initlock(&p->lock, "proc");
     p->state = UNUSED;
     p->kstack = KSTACK((int)(p - proc));
+    rb_node_init(&p->cfs_node, p);
   }
 }
 
