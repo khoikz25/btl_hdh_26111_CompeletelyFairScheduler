@@ -111,4 +111,4 @@ struct proc {
   uint64 time_slice;           // Hạn ngạch ticks tối đa mỗi lượt chạy
   struct rb_node cfs_node;     // Nút cây đỏ-đen nhúng trực tiếp vào proc
 };
- 
+extern struct rb_root cfs_rq;
