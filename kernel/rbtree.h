@@ -13,26 +13,26 @@ enum rb_color { RB_RED = 0, RB_BLACK = 1 };
 // 2. Cấu trúc một nút của Cây Đỏ-Đen (Nhúng vào trong mỗi struct proc)
 struct rb_node {
   struct rb_node *parent; // Con trỏ trỏ tới nút cha
-  struct rb_node *left; // Con trỏ trỏ tới cây con trái (vruntime nhỏ hơn)
-  struct rb_node *right; // Con trỏ trỏ tới cây con phải (vruntime lớn hơn)
-  enum rb_color color; // Màu của nút (RB_RED hoặc RB_BLACK)
+  struct rb_node *left;   // Con trỏ trỏ tới cây con trái (vruntime nhỏ hơn)
+  struct rb_node *right;  // Con trỏ trỏ tới cây con phải (vruntime lớn hơn)
+  enum rb_color color;    // Màu của nút (RB_RED hoặc RB_BLACK)
 
   // Khóa sắp xếp trên cây (Key)
   uint64 vruntime; // Khóa chính: Thời gian chạy ảo của tiến trình
-  int pid; // Khóa phụ: Phân biệt khi 2 tiến trình có cùng vruntime
+  int pid;         // Khóa phụ: Phân biệt khi 2 tiến trình có cùng vruntime
 
   // Dữ liệu liên kết tiến trình
   struct proc *proc; // Con trỏ trỏ ngược về tiến trình sở hữu nút này
-  int on_rq; // Cờ đánh dấu: 1 nếu đang nằm trên cây, 0 nếu ở ngoài
+  int on_rq;         // Cờ đánh dấu: 1 nếu đang nằm trên cây, 0 nếu ở ngoài
 };
 
 // 3. Cấu trúc gốc quản lý toàn bộ Cây Đỏ-Đen (CFS Runqueue)
 struct rb_root {
   struct rb_node *root; // Nút gốc của cây
   struct rb_node
-    *leftmost; // Trỏ trực tiếp tới nút có vruntime nhỏ nhất -> lấy min O(1)
+    *leftmost;    // Trỏ trực tiếp tới nút có vruntime nhỏ nhất -> lấy min O(1)
   int nr_running; // Tổng số tiến trình RUNNABLE hiện có trên cây
-  uint64 min_vruntime; // Giá trị vruntime nhỏ nhất của hệ thống hiện tại
+  uint64 min_vruntime;  // Giá trị vruntime nhỏ nhất của hệ thống hiện tại
   struct spinlock lock; // Khóa đồng bộ khi nhiều CPU cùng truy cập cây
 };
 
