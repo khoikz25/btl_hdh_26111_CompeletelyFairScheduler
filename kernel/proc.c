@@ -30,6 +30,55 @@ struct spinlock wait_lock;
 // Allocate a page for each process's kernel stack.
 // Map it high in memory, followed by an invalid
 // guard page.
+
+// Bảng tra cứu trọng số CPU chuẩn CFS (tương ứng nice từ -20 đến +19)
+const uint64 prio_to_weight[40] = {
+  /* -20 */ 88761, 71755, 56483, 46273, 36291,
+  /* -15 */ 29154, 23254, 18705, 14949, 11916,
+  /* -10 */ 9548,  7620,  6100,  4904,  3906,
+  /*  -5 */ 3121,  2501,  1991,  1586,  1277,
+  /*   0 */ 1024,  820,   655,   526,   423,
+  /*   5 */ 335,   272,   215,   172,   137,
+  /*  10 */ 110,   87,    70,    56,    45,
+  /*  15 */ 36,    29,    23,    18,    15,
+};
+
+// Hàm chuyển đổi từ nice sang trọng số weight
+uint64
+nice_to_weight(int nice)
+{
+  if (nice < -20)
+    nice = -20;
+  if (nice > 19)
+    nice = 19;
+  return prio_to_weight[nice + 20];
+}
+
+// Cập nhật vruntime và số tick đã chạy cho tiến trình hiện tại
+void
+update_vruntime(struct proc *p)
+{
+  if (p == 0 || p->state != RUNNING)
+    return;
+
+  // Mỗi ngắt timer tương ứng với 1 tick thực tế
+  uint64 delta_exec = 1;
+  p->runtime_ticks += delta_exec;
+
+  // Đảm bảo weight hợp lệ tránh chia cho 0
+  if (p->weight == 0)
+    p->weight = 1024;
+
+  // Tính gia số delta_vruntime bằng số nguyên
+  uint64 delta_vruntime = (delta_exec * 1024) / p->weight;
+
+  // Nếu weight quá lớn (> 1024) khiến phép chia nguyên bằng 0, gán tối thiểu 1
+  if (delta_vruntime == 0)
+    delta_vruntime = 1;
+
+  p->vruntime += delta_vruntime;
+}
+
 void
 proc_mapstacks(pagetable_t kpgtbl)
 {
@@ -405,6 +454,12 @@ kexit(int status)
   wakeup(p->parent);
 
   acquire(&p->lock);
+
+  if (p->nice != 0) {
+    printk(
+      "[CFS VERIFY] PID %d | nice: %d | weight: %d | ticks: %d | vruntime: %d\n",
+      p->pid, p->nice, (int)p->weight, (int)p->runtime_ticks, (int)p->vruntime);
+  }
 
   p->xstate = status;
   p->state = ZOMBIE;
