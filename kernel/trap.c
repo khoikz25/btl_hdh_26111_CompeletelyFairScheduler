@@ -82,7 +82,7 @@ usertrap(void)
     kexit(-1);
 
   // give up the CPU if this is a timer interrupt.
-  if (which_dev == 2){
+  if (which_dev == 2) {
     update_vruntime(p);
     yield();
   }

@@ -103,12 +103,12 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
 
-  uint64 vruntime;             // Thời gian chạy ảo tích lũy
-  int nice;                    // Mức ưu tiên (-20 đến 19)
-  uint64 weight;               // Trọng số CPU
-  uint64 start_tick;           // Thời điểm bắt đầu lượt chạy
-  uint64 runtime_ticks;        // Số ticks thực tế đã chạy trên CPU
-  uint64 time_slice;           // Hạn ngạch ticks tối đa mỗi lượt chạy
-  struct rb_node cfs_node;     // Nút cây đỏ-đen nhúng trực tiếp vào proc
+  uint64 vruntime;         // Thời gian chạy ảo tích lũy
+  int nice;                // Mức ưu tiên (-20 đến 19)
+  uint64 weight;           // Trọng số CPU
+  uint64 start_tick;       // Thời điểm bắt đầu lượt chạy
+  uint64 runtime_ticks;    // Số ticks thực tế đã chạy trên CPU
+  uint64 time_slice;       // Hạn ngạch ticks tối đa mỗi lượt chạy
+  struct rb_node cfs_node; // Nút cây đỏ-đen nhúng trực tiếp vào proc
 };
 extern struct rb_root cfs_rq;

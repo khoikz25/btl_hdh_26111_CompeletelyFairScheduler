@@ -112,7 +112,8 @@ sys_uptime(void)
 }
 
 uint64
-sys_setnice(void){
+sys_setnice(void)
+{
   int n;
   argint(0, &n);
   // Bắt giá trị kh hợp lệ (nice ph nằm trong đoạn [-20,19])

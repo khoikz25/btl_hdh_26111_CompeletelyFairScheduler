@@ -29,18 +29,18 @@ struct spinlock wait_lock;
 
 // Allocate a page for each process's kernel stack.
 // Map it high in memory, followed by an invalid
-// guard page.  
+// guard page.
 
 // Bảng tra cứu trọng số CPU chuẩn CFS (tương ứng nice từ -20 đến +19)
 const uint64 prio_to_weight[40] = {
-    /* -20 */ 88761, 71755, 56483, 46273, 36291,
-    /* -15 */ 29154, 23254, 18705, 14949, 11916,
-    /* -10 */ 9548,  7620,  6100,  4904,  3906,
-    /*  -5 */ 3121,  2501,  1991,  1586,  1277,
-    /*   0 */ 1024,  820,   655,   526,   423,
-    /*   5 */ 335,   272,   215,   172,   137,
-    /*  10 */ 110,   87,    70,    56,    45,
-    /*  15 */ 36,    29,    23,    18,    15,
+  /* -20 */ 88761, 71755, 56483, 46273, 36291,
+  /* -15 */ 29154, 23254, 18705, 14949, 11916,
+  /* -10 */ 9548,  7620,  6100,  4904,  3906,
+  /*  -5 */ 3121,  2501,  1991,  1586,  1277,
+  /*   0 */ 1024,  820,   655,   526,   423,
+  /*   5 */ 335,   272,   215,   172,   137,
+  /*  10 */ 110,   87,    70,    56,    45,
+  /*  15 */ 36,    29,    23,    18,    15,
 };
 
 // Hàm chuyển đổi từ nice sang trọng số weight
@@ -454,6 +454,12 @@ kexit(int status)
   wakeup(p->parent);
 
   acquire(&p->lock);
+
+  if (p->nice != 0) {
+    printk(
+      "[CFS VERIFY] PID %d | nice: %d | weight: %d | ticks: %d | vruntime: %d\n",
+      p->pid, p->nice, (int)p->weight, (int)p->runtime_ticks, (int)p->vruntime);
+  }
 
   p->xstate = status;
   p->state = ZOMBIE;
