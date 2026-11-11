@@ -110,3 +110,20 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+uint64
+sys_setnice(void){
+  int n;
+  argint(0, &n);
+  // Bắt giá trị kh hợp lệ (nice ph nằm trong đoạn [-20,19])
+  if (n < -20 || n > 19)
+    return -1;
+
+  struct proc *p = myproc();
+  acquire(&p->lock);
+  p->nice = n;
+  p->weight = nice_to_weight(n);
+  release(&p->lock);
+
+  return 0;
+}
