@@ -226,7 +226,15 @@ found:
   p->context.sp = p->kstack + PGSIZE;
 
   // Khởi tạo các trường CFS cho tiến trình mới
-  p->vruntime = 0;
+  uint64 base_vruntime = 0;
+  acquire(&cfs_rq.lock);
+  base_vruntime = cfs_rq.min_vruntime;
+  release(&cfs_rq.lock);
+  if (myproc() != 0 && myproc()->vruntime > base_vruntime) {
+    base_vruntime = myproc()->vruntime;
+  }
+
+  p->vruntime = base_vruntime;
   p->nice = 0;
   p->weight = 1024;
   p->start_tick = 0;
